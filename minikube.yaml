@@ -1,0 +1,38 @@
+---
+apiVersion: xl-deploy/v1
+kind: Applications
+spec:
+- name: Applications/Minikube/hello-world
+  type: udm.Application
+  lastVersion: 1.0.0
+  children:
+  - name: 1.0.0
+    type: udm.DeploymentPackage
+    deployables:
+    - name: hello-world
+      type: k8s.DeploymentSpec
+      containers:
+      - name: hello-world
+        type: k8s.ContainerSpec
+        containerName: hello-world
+        image: lyhsoft/holi
+        ports:
+        - name: "8080"
+          type: k8s.ContainerPortSpec
+          hostPort: "1234"
+          containerPort: "8080"
+          exposeAsService: "true"
+          serviceType: LoadBalancer
+          serviceName: hello-world
+          servicePort: "12345"
+      podCreateDeleteRetryCount: "20"
+      restartPolicy: Always
+- name: Applications/Minikube/namespace-lyhsoft
+  type: udm.Application
+  lastVersion: 1.0.0
+  children:
+  - name: 1.0.0
+    type: udm.DeploymentPackage
+    deployables:
+    - name: lyhsoft
+      type: k8s.NamespaceSpec

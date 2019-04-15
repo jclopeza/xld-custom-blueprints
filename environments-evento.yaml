@@ -1,0 +1,76 @@
+---
+apiVersion: xl-deploy/v1
+kind: Environments
+spec:
+- name: Environments/Dictionaries
+  type: core.Directory
+- name: Environments/Evento
+  type: core.Directory
+- name: Environments/Dictionaries/Evento
+  type: core.Directory
+- name: Environments/Dictionaries/Evento/evento-dev
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/Evento/evento-pre
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/Evento/evento-pro
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Evento/evento-dev
+  type: udm.Environment
+  members:
+  - Infrastructure/Evento/host-dev/axis2
+  - Infrastructure/Evento/host-dev/mysql-cli
+  - Infrastructure/Evento/host-dev/smokeTest
+  - Infrastructure/Evento/host-dev/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Evento/evento-dev
+- name: Environments/Evento/evento-pre
+  type: udm.Environment
+  members:
+  - Infrastructure/Evento/host-pre/axis2
+  - Infrastructure/Evento/host-pre/mysql-cli
+  - Infrastructure/Evento/host-pre/smokeTest
+  - Infrastructure/Evento/host-pre/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Evento/evento-pre
+- name: Environments/Evento/evento-pro
+  type: udm.Environment
+  members:
+  - Infrastructure/Evento/host-pro-1/axis2
+  - Infrastructure/Evento/host-pro-1/mysql-cli
+  - Infrastructure/Evento/host-pro-1/smokeTest
+  - Infrastructure/Evento/host-pro-1/tomcat/virtual-host-congruencias
+  - Infrastructure/Evento/host-pro-2/axis2
+  - Infrastructure/Evento/host-pro-2/mysql-cli
+  - Infrastructure/Evento/host-pro-2/smokeTest
+  - Infrastructure/Evento/host-pro-2/tomcat/virtual-host-congruencias
+  - Infrastructure/Evento/host-pro-3/axis2
+  - Infrastructure/Evento/host-pro-3/mysql-cli
+  - Infrastructure/Evento/host-pro-3/smokeTest
+  - Infrastructure/Evento/host-pro-3/tomcat/virtual-host-congruencias
+  - Infrastructure/Evento/host-pro-4/axis2
+  - Infrastructure/Evento/host-pro-4/mysql-cli
+  - Infrastructure/Evento/host-pro-4/smokeTest
+  - Infrastructure/Evento/host-pro-4/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Evento/evento-pro

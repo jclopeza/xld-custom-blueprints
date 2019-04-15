@@ -1,0 +1,27 @@
+---
+apiVersion: xl-deploy/v1
+kind: Infrastructure
+spec:
+- name: Infrastructure/openshift
+  type: openshift.Server
+  serverUrl: https://192.168.42.185:8443
+  verifyCertificates: false
+  children:
+  - name: tutorial-dev
+    type: openshift.Project
+    deployable: Applications/Provisioning packages/tutorial-openshift/tutorial-dev
+    projectName: tutorial-dev
+    description: tutorial-dev
+    projectDisplayName: tutorial-dev
+  - name: tutorial-pro
+    type: openshift.Project
+    deployable: Applications/Provisioning packages/tutorial-openshift/tutorial-pro
+    projectName: tutorial-pro
+    description: tutorial-pro
+    projectDisplayName: tutorial-pro
+  - name: tutorial-pre
+    type: openshift.Project
+    deployable: Applications/Provisioning packages/tutorial-openshift/tutorial-pre
+    projectName: tutorial-pre
+    description: tutorial-pre
+    projectDisplayName: tutorial-pre

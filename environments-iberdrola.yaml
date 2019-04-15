@@ -1,0 +1,76 @@
+---
+apiVersion: xl-deploy/v1
+kind: Environments
+spec:
+- name: Environments/Dictionaries
+  type: core.Directory
+- name: Environments/Iberdrola
+  type: core.Directory
+- name: Environments/Dictionaries/Iberdrola
+  type: core.Directory
+- name: Environments/Dictionaries/Iberdrola/iberdrola-dev
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/Iberdrola/iberdrola-pre
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8081/congruencias/index
+    url.webservices: http://localhost:8081/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/Iberdrola/iberdrola-pro
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_users
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Iberdrola/iberdrola-dev
+  type: udm.Environment
+  members:
+  - Infrastructure/Iberdrola/host-dev/axis2
+  - Infrastructure/Iberdrola/host-dev/mysql-cli
+  - Infrastructure/Iberdrola/host-dev/smokeTest
+  - Infrastructure/Iberdrola/host-dev/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Iberdrola/iberdrola-dev
+- name: Environments/Iberdrola/iberdrola-pre
+  type: udm.Environment
+  members:
+  - Infrastructure/Iberdrola/host-pre/axis2
+  - Infrastructure/Iberdrola/host-pre/mysql-cli
+  - Infrastructure/Iberdrola/host-pre/smokeTest
+  - Infrastructure/Iberdrola/host-pre/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Iberdrola/iberdrola-pre
+- name: Environments/Iberdrola/iberdrola-pro
+  type: udm.Environment
+  members:
+  - Infrastructure/Iberdrola/host-pro-1/axis2
+  - Infrastructure/Iberdrola/host-pro-1/mysql-cli
+  - Infrastructure/Iberdrola/host-pro-1/smokeTest
+  - Infrastructure/Iberdrola/host-pro-1/tomcat/virtual-host-congruencias
+  - Infrastructure/Iberdrola/host-pro-2/axis2
+  - Infrastructure/Iberdrola/host-pro-2/mysql-cli
+  - Infrastructure/Iberdrola/host-pro-2/smokeTest
+  - Infrastructure/Iberdrola/host-pro-2/tomcat/virtual-host-congruencias
+  - Infrastructure/Iberdrola/host-pro-3/axis2
+  - Infrastructure/Iberdrola/host-pro-3/mysql-cli
+  - Infrastructure/Iberdrola/host-pro-3/smokeTest
+  - Infrastructure/Iberdrola/host-pro-3/tomcat/virtual-host-congruencias
+  - Infrastructure/Iberdrola/host-pro-4/axis2
+  - Infrastructure/Iberdrola/host-pro-4/mysql-cli
+  - Infrastructure/Iberdrola/host-pro-4/smokeTest
+  - Infrastructure/Iberdrola/host-pro-4/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Iberdrola/iberdrola-pro

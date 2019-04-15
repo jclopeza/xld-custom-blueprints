@@ -1,0 +1,76 @@
+---
+apiVersion: xl-deploy/v1
+kind: Environments
+spec:
+- name: Environments/Dictionaries
+  type: core.Directory
+- name: Environments/Evoluciona
+  type: core.Directory
+- name: Environments/Dictionaries/Evoluciona
+  type: core.Directory
+- name: Environments/Dictionaries/Evoluciona/evoluciona-dev
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/Evoluciona/evoluciona-pre
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/Evoluciona/evoluciona-pro
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Evoluciona/evoluciona-dev
+  type: udm.Environment
+  members:
+  - Infrastructure/Evoluciona/host-dev/axis2
+  - Infrastructure/Evoluciona/host-dev/mysql-cli
+  - Infrastructure/Evoluciona/host-dev/smokeTest
+  - Infrastructure/Evoluciona/host-dev/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Evoluciona/evoluciona-dev
+- name: Environments/Evoluciona/evoluciona-pre
+  type: udm.Environment
+  members:
+  - Infrastructure/Evoluciona/host-pre/axis2
+  - Infrastructure/Evoluciona/host-pre/mysql-cli
+  - Infrastructure/Evoluciona/host-pre/smokeTest
+  - Infrastructure/Evoluciona/host-pre/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Evoluciona/evoluciona-pre
+- name: Environments/Evoluciona/evoluciona-pro
+  type: udm.Environment
+  members:
+  - Infrastructure/Evoluciona/host-pro-1/axis2
+  - Infrastructure/Evoluciona/host-pro-1/mysql-cli
+  - Infrastructure/Evoluciona/host-pro-1/smokeTest
+  - Infrastructure/Evoluciona/host-pro-1/tomcat/virtual-host-congruencias
+  - Infrastructure/Evoluciona/host-pro-2/axis2
+  - Infrastructure/Evoluciona/host-pro-2/mysql-cli
+  - Infrastructure/Evoluciona/host-pro-2/smokeTest
+  - Infrastructure/Evoluciona/host-pro-2/tomcat/virtual-host-congruencias
+  - Infrastructure/Evoluciona/host-pro-3/axis2
+  - Infrastructure/Evoluciona/host-pro-3/mysql-cli
+  - Infrastructure/Evoluciona/host-pro-3/smokeTest
+  - Infrastructure/Evoluciona/host-pro-3/tomcat/virtual-host-congruencias
+  - Infrastructure/Evoluciona/host-pro-4/axis2
+  - Infrastructure/Evoluciona/host-pro-4/mysql-cli
+  - Infrastructure/Evoluciona/host-pro-4/smokeTest
+  - Infrastructure/Evoluciona/host-pro-4/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Evoluciona/evoluciona-pro

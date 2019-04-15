@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tutorial
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tutorial
+        tier: frontend
+        track: stable
+    spec:
+      containers:
+        - name: tutorial
+          image: "lyhsoft/tutorial:110"
+          ports:
+            - name: http
+              containerPort: 80

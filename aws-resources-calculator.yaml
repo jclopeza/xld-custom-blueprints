@@ -1,0 +1,1162 @@
+---
+apiVersion: xl-deploy/v1
+kind: Applications
+spec:
+- name: Applications/AWS-Resources-Calculator
+  type: udm.Application
+- name: Applications/AWS-Resources-Calculator/1.0.0
+  type: udm.ProvisioningPackage
+  deployables:
+  - name: calculator-db
+    type: aws.rds.DBInstanceSpec
+    engine: mysql
+    dbInstanceClass: db.t2.small
+    allocatedStorage: "5"
+    region: us-east-1
+    dbInstanceIdentifier: calculator-db
+    masterUsername: cng_user
+    dbName: congruencias
+    backupRetentionPeriod: "1"
+    monitoringInterval: "0"
+    rdsTags:
+      app: calculator
+- name: Applications/AWS-Resources-Calculator/1.0.1
+  type: udm.ProvisioningPackage
+  deployables:
+  - name: calculator-db
+    type: aws.rds.DBInstanceSpec
+    engine: mysql
+    dbInstanceClass: db.t2.small
+    allocatedStorage: "5"
+    region: us-east-1
+    dbInstanceIdentifier: calculator-db
+    masterUsername: cng_user
+    dbName: congruencias
+    backupRetentionPeriod: "1"
+    monitoringInterval: "0"
+    rdsTags:
+      app: calculator
+  - name: sql-client-instance
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.1/sql-client-host
+    provisioners:
+    - name: mysql-client
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.1/sql-client-host
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.1/sql-client-instance/mysql-client/mysql.sh"
+    instanceName: sql-client-instance
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  templates:
+  - name: sql-client-host
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: calculator mysql client
+      type: template.sql.MySqlClient
+      username: cng_user
+      additionalOptions: -h Name:calculator-db
+      mySqlHome: /usr
+      databaseName: congruencias
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+- name: Applications/AWS-Resources-Calculator/1.0.2
+  type: udm.ProvisioningPackage
+  deployables:
+  - name: calculator-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-security-group
+    description: Grupo de seguridad para la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: http-alt
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "8080"
+      source: 0.0.0.0/0
+    - name: ssh
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "22"
+      source: 0.0.0.0/0
+    - name: http
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "80"
+      source: 0.0.0.0/0
+  - name: calculator-db
+    type: aws.rds.DBInstanceSpec
+    engine: mysql
+    dbInstanceClass: db.t2.small
+    allocatedStorage: "5"
+    region: us-east-1
+    dbInstanceIdentifier: calculator-db
+    masterUsername: cng_user
+    dbName: congruencias
+    backupRetentionPeriod: "1"
+    monitoringInterval: "0"
+    rdsTags:
+      app: calculator
+  - name: calculator-loadbalancer
+    type: aws.elb.ClassicELBSpec
+    loadBalancerName: calculator-loadbalancer
+    availabilityZones:
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+    ec2InstanceIds:
+    - Name:tomcat-instance-2
+    - Name:tomcat-instance-1
+    securityGroups:
+    - Name:calculator-security-group
+    region: us-east-1
+    destroyWaitTime: "200"
+    resourceDissociationWaitTime: "50"
+    connectionSettingIdleTimeout: "60"
+    listeners:
+    - name: http
+      type: aws.elb.ClassicListenerSpec
+      loadBalancerPort: "80"
+      protocol: HTTP
+      instanceProtocol: HTTP
+      instancePort: "8080"
+  - name: tomcat-instance-1
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.2/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.2/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.2/tomcat-instance-1/java8/install_java.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.2/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.2/tomcat-instance-1/tomcat/tomcat.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.2/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.2/tomcat-instance-1/service-tomcat/service_tomcat.sh"
+    instanceName: tomcat-instance-1
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: tomcat-instance-2
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.2/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.2/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.2/tomcat-instance-2/java8/install_java.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.2/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.2/tomcat-instance-2/tomcat/tomcat.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.2/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.2/tomcat-instance-2/service-tomcat/service_tomcat.sh"
+    instanceName: tomcat-instance-2
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: sql-client-instance
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.2/sql-client-host
+    provisioners:
+    - name: mysql-client
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.2/sql-client-host
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.2/sql-client-instance/mysql-client/mysql.sh"
+    instanceName: sql-client-instance
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  templates:
+  - name: sql-client-host
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: calculator mysql client
+      type: template.sql.MySqlClient
+      username: cng_user
+      additionalOptions: -h Name:calculator-db
+      mySqlHome: /usr
+      databaseName: congruencias
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+  - name: tomcat-host-{{%instanceId%}}
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: smoker
+      type: template.smoketest.Runner
+    - name: tomcat-server
+      type: template.tomcat.Server
+      childTemplates:
+      - name: tomcat-vh
+        type: template.tomcat.VirtualHost
+      home: /opt/tomcat
+      startCommand: sudo systemctl start tomcat
+      stopCommand: sudo systemctl stop tomcat
+      startWaitTime: "10"
+      stopWaitTime: "10"
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+- name: Applications/AWS-Resources-Calculator/1.0.3
+  type: udm.ProvisioningPackage
+  deployables:
+  - name: calculator-db
+    type: aws.rds.DBInstanceSpec
+    engine: mysql
+    dbInstanceClass: db.t2.small
+    allocatedStorage: "5"
+    region: us-east-1
+    dbInstanceIdentifier: calculator-db
+    masterUsername: cng_user
+    dbName: congruencias
+    backupRetentionPeriod: "1"
+    monitoringInterval: "0"
+    dbSecurityGroups:
+    - Name:calculator-db-security-group
+    rdsTags:
+      app: calculator
+  - name: calculator-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-security-group
+    description: Grupo de seguridad para la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: http
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "80"
+      source: 0.0.0.0/0
+    - name: http-alt
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "8080"
+      source: 0.0.0.0/0
+    - name: ssh
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "22"
+      source: 0.0.0.0/0
+  - name: calculator-db-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-db-security-group
+    description: Grupo de seguridad para la base de datos de la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: mysql
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "3306"
+      source: 0.0.0.0/0
+  - name: tomcat-instance-2
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.3/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.3/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.3/tomcat-instance-2/java8/install_java.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.3/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.3/tomcat-instance-2/service-tomcat/service_tomcat.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.3/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.3/tomcat-instance-2/tomcat/tomcat.sh"
+    instanceName: tomcat-instance-2
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: tomcat-instance-1
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.3/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.3/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.3/tomcat-instance-1/java8/install_java.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.3/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.3/tomcat-instance-1/service-tomcat/service_tomcat.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.3/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.3/tomcat-instance-1/tomcat/tomcat.sh"
+    instanceName: tomcat-instance-1
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: sql-client-instance
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.3/sql-client-host
+    provisioners:
+    - name: mysql-client
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.3/sql-client-host
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.3/sql-client-instance/mysql-client/mysql.sh"
+    instanceName: sql-client-instance
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: calculator-loadbalancer
+    type: aws.elb.ClassicELBSpec
+    loadBalancerName: calculator-loadbalancer
+    availabilityZones:
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+    ec2InstanceIds:
+    - Name:tomcat-instance-2
+    - Name:tomcat-instance-1
+    securityGroups:
+    - Name:calculator-security-group
+    region: us-east-1
+    destroyWaitTime: "200"
+    resourceDissociationWaitTime: "50"
+    connectionSettingIdleTimeout: "60"
+    listeners:
+    - name: http
+      type: aws.elb.ClassicListenerSpec
+      loadBalancerPort: "80"
+      protocol: HTTP
+      instanceProtocol: HTTP
+      instancePort: "8080"
+  templates:
+  - name: sql-client-host
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: calculator mysql client
+      type: template.sql.MySqlClient
+      username: cng_user
+      additionalOptions: -h Name:calculator-db
+      mySqlHome: /usr
+      databaseName: congruencias
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+  - name: tomcat-host-{{%instanceId%}}
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: tomcat-server
+      type: template.tomcat.Server
+      childTemplates:
+      - name: tomcat-vh
+        type: template.tomcat.VirtualHost
+      home: /opt/tomcat
+      startCommand: sudo systemctl start tomcat
+      stopCommand: sudo systemctl stop tomcat
+      startWaitTime: "10"
+      stopWaitTime: "10"
+    - name: smoker
+      type: template.smoketest.Runner
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+- name: Applications/AWS-Resources-Calculator/1.0.4
+  type: udm.ProvisioningPackage
+  deployables:
+  - name: calculator-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-security-group
+    description: Grupo de seguridad para la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: http
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "80"
+      source: 0.0.0.0/0
+    - name: ssh
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "22"
+      source: 0.0.0.0/0
+    - name: http-alt
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "8080"
+      source: 0.0.0.0/0
+  - name: tomcat-instance-1
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.4/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.4/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.4/tomcat-instance-1/java8/install_java.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.4/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.4/tomcat-instance-1/service-tomcat/service_tomcat.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.4/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.4/tomcat-instance-1/tomcat/tomcat.sh"
+    instanceName: tomcat-instance-1
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: sql-client-instance
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.4/sql-client-host
+    provisioners:
+    - name: mysql-client
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.4/sql-client-host
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.4/sql-client-instance/mysql-client/mysql.sh"
+    instanceName: sql-client-instance
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: tomcat-instance-2
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.4/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.4/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.4/tomcat-instance-2/java8/install_java.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.4/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.4/tomcat-instance-2/service-tomcat/service_tomcat.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.4/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.4/tomcat-instance-2/tomcat/tomcat.sh"
+    instanceName: tomcat-instance-2
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: calculator-loadbalancer
+    type: aws.elb.ClassicELBSpec
+    loadBalancerName: calculator-loadbalancer
+    availabilityZones:
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+    ec2InstanceIds:
+    - Name:tomcat-instance-2
+    - Name:tomcat-instance-1
+    securityGroups:
+    - Name:calculator-security-group
+    region: us-east-1
+    destroyWaitTime: "200"
+    resourceDissociationWaitTime: "50"
+    connectionSettingIdleTimeout: "60"
+    listeners:
+    - name: http
+      type: aws.elb.ClassicListenerSpec
+      loadBalancerPort: "80"
+      protocol: HTTP
+      instanceProtocol: HTTP
+      instancePort: "8080"
+  - name: calculator-db-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-db-security-group
+    description: Grupo de seguridad para la base de datos de la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: mysql
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "3306"
+      source: 0.0.0.0/0
+  - name: calculator-db
+    type: aws.rds.DBInstanceSpec
+    engine: mysql
+    dbInstanceClass: db.t2.small
+    allocatedStorage: "5"
+    region: us-east-1
+    dbInstanceIdentifier: calculator-db
+    masterUsername: cng_user
+    dbName: congruencias
+    vpcSecurityGroupIds:
+    - Name:calculator-db-security-group
+    backupRetentionPeriod: "1"
+    monitoringInterval: "0"
+    rdsTags:
+      app: calculator
+  templates:
+  - name: tomcat-host-{{%instanceId%}}
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: tomcat-server
+      type: template.tomcat.Server
+      childTemplates:
+      - name: tomcat-vh
+        type: template.tomcat.VirtualHost
+      home: /opt/tomcat
+      startCommand: sudo systemctl start tomcat
+      stopCommand: sudo systemctl stop tomcat
+      startWaitTime: "10"
+      stopWaitTime: "10"
+    - name: smoker
+      type: template.smoketest.Runner
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+  - name: sql-client-host
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: calculator mysql client
+      type: template.sql.MySqlClient
+      username: cng_user
+      additionalOptions: -h Name:calculator-db
+      mySqlHome: /usr
+      databaseName: congruencias
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+- name: Applications/AWS-Resources-Calculator/1.0.5
+  type: udm.ProvisioningPackage
+  deployables:
+  - name: calculator-loadbalancer
+    type: aws.elb.ClassicELBSpec
+    loadBalancerName: calculator-loadbalancer
+    availabilityZones:
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+    ec2InstanceIds:
+    - Name:tomcat-instance-2
+    - Name:tomcat-instance-1
+    securityGroups:
+    - Name:calculator-security-group
+    region: us-east-1
+    destroyWaitTime: "200"
+    resourceDissociationWaitTime: "50"
+    connectionSettingIdleTimeout: "60"
+    listeners:
+    - name: http
+      type: aws.elb.ClassicListenerSpec
+      loadBalancerPort: "80"
+      protocol: HTTP
+      instanceProtocol: HTTP
+      instancePort: "8080"
+  - name: sql-client-instance
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.5/sql-client-host
+    provisioners:
+    - name: mysql-client
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.5/sql-client-host
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.5/sql-client-instance/mysql-client/mysql.sh"
+    instanceName: sql-client-instance
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: calculator-db
+    type: aws.rds.DBInstanceSpec
+    engine: mysql
+    dbInstanceClass: db.t2.small
+    allocatedStorage: "5"
+    region: us-east-1
+    dbInstanceIdentifier: calculator-db
+    masterUsername: cng_user
+    dbName: congruencias
+    vpcSecurityGroupIds:
+    - Name:calculator-db-security-group
+    backupRetentionPeriod: "1"
+    monitoringInterval: "0"
+    rdsTags:
+      app: calculator
+  - name: tomcat-instance-2
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.5/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.5/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.5/tomcat-instance-2/java8/install_java.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.5/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.5/tomcat-instance-2/tomcat/tomcat.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.5/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.5/tomcat-instance-2/service-tomcat/service_tomcat.sh"
+    instanceName: tomcat-instance-2
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: calculator-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-security-group
+    description: Grupo de seguridad para la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: http
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "80"
+      source: 0.0.0.0/0
+    - name: ssh
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "22"
+      source: 0.0.0.0/0
+    - name: http-alt
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "8080"
+      source: 0.0.0.0/0
+  - name: calculator-db-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-db-security-group
+    description: Grupo de seguridad para la base de datos de la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: mysql
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "3306"
+      source: 0.0.0.0/0
+  - name: tomcat-instance-1
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.5/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.5/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.5/tomcat-instance-1/java8/install_java.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.5/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.5/tomcat-instance-1/tomcat/tomcat.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.5/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.5/tomcat-instance-1/service-tomcat/service_tomcat.sh"
+    instanceName: tomcat-instance-1
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  templates:
+  - name: tomcat-host-{{%instanceId%}}
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: tomcat-server
+      type: template.tomcat.Server
+      childTemplates:
+      - name: tomcat-vh
+        type: template.tomcat.VirtualHost
+      home: /opt/tomcat
+      startCommand: sudo systemctl start tomcat
+      stopCommand: sudo systemctl stop tomcat
+      startWaitTime: "10"
+      stopWaitTime: "10"
+    - name: smoker
+      type: template.smoketest.Runner
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+  - name: sql-client-host
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: calculator mysql client
+      type: template.sql.MySqlClient
+      username: cng_user
+      additionalOptions: -h Name:calculator-db
+      mySqlHome: /usr
+      databaseName: congruencias
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+- name: Applications/AWS-Resources-Calculator/1.0.6
+  type: udm.ProvisioningPackage
+  deployables:
+  - name: tomcat-instance-2
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.6/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.6/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.6/tomcat-instance-2/java8/install_java.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.6/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.6/tomcat-instance-2/tomcat/tomcat.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.6/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.6/tomcat-instance-2/service-tomcat/service_tomcat.sh"
+    instanceName: tomcat-instance-2
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: calculator-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-security-group
+    description: Grupo de seguridad para la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: http-alt
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "8080"
+      source: 0.0.0.0/0
+    - name: http
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "80"
+      source: 0.0.0.0/0
+    - name: ssh
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "22"
+      source: 0.0.0.0/0
+  - name: tomcat-instance-1
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.6/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.6/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.6/tomcat-instance-1/java8/install_java.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.6/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.6/tomcat-instance-1/tomcat/tomcat.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.6/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.6/tomcat-instance-1/service-tomcat/service_tomcat.sh"
+    instanceName: tomcat-instance-1
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: calculator-loadbalancer
+    type: aws.elb.ClassicELBSpec
+    loadBalancerName: calculator-loadbalancer
+    availabilityZones:
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+    ec2InstanceIds:
+    - Name:tomcat-instance-2
+    - Name:tomcat-instance-1
+    securityGroups:
+    - Name:calculator-security-group
+    region: us-east-1
+    destroyWaitTime: "200"
+    resourceDissociationWaitTime: "50"
+    connectionSettingIdleTimeout: "60"
+    listeners:
+    - name: http
+      type: aws.elb.ClassicListenerSpec
+      loadBalancerPort: "80"
+      protocol: HTTP
+      instanceProtocol: HTTP
+      instancePort: "8080"
+  - name: sql-client-instance
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.6/sql-client-host
+    provisioners:
+    - name: mysql-client
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.6/sql-client-host
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.6/sql-client-instance/mysql-client/mysql.sh"
+    instanceName: sql-client-instance
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: calculator-db
+    type: aws.rds.DBInstanceSpec
+    engine: mysql
+    dbInstanceClass: db.t2.small
+    allocatedStorage: "5"
+    region: us-east-1
+    dbInstanceIdentifier: calculator-db
+    masterUsername: root
+    dbName: congruencias
+    dbSubnetGroupName: default
+    publiclyAccessible: "true"
+    availabilityZone: us-east-1a
+    vpcSecurityGroupIds:
+    - Name:calculator-db-security-group
+    backupRetentionPeriod: "1"
+    monitoringInterval: "0"
+    rdsTags:
+      app: calculator
+  - name: calculator-db-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-db-security-group
+    description: Grupo de seguridad para la base de datos de la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: mysql
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "3306"
+      source: 0.0.0.0/0
+  templates:
+  - name: sql-client-host
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: calculator mysql client
+      type: template.sql.MySqlClient
+      username: cng_user
+      additionalOptions: -h Name:calculator-db
+      mySqlHome: /usr
+      databaseName: congruencias
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+  - name: tomcat-host-{{%instanceId%}}
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: tomcat-server
+      type: template.tomcat.Server
+      childTemplates:
+      - name: tomcat-vh
+        type: template.tomcat.VirtualHost
+      home: /opt/tomcat
+      startCommand: sudo systemctl start tomcat
+      stopCommand: sudo systemctl stop tomcat
+      startWaitTime: "10"
+      stopWaitTime: "10"
+    - name: smoker
+      type: template.smoketest.Runner
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+- name: Applications/AWS-Resources-Calculator/1.0.7
+  type: udm.ProvisioningPackage
+  deployables:
+  - name: calculator-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-security-group
+    description: Grupo de seguridad para la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: http-alt
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "8080"
+      source: 0.0.0.0/0
+    - name: ssh
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "22"
+      source: 0.0.0.0/0
+    - name: http
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "80"
+      source: 0.0.0.0/0
+  - name: calculator-loadbalancer
+    type: aws.elb.ClassicELBSpec
+    loadBalancerName: calculator-loadbalancer
+    availabilityZones:
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+    ec2InstanceIds:
+    - Name:tomcat-instance-2
+    - Name:tomcat-instance-1
+    securityGroups:
+    - Name:calculator-security-group
+    region: us-east-1
+    destroyWaitTime: "200"
+    resourceDissociationWaitTime: "50"
+    connectionSettingIdleTimeout: "60"
+    listeners:
+    - name: http
+      type: aws.elb.ClassicListenerSpec
+      loadBalancerPort: "80"
+      protocol: HTTP
+      instanceProtocol: HTTP
+      instancePort: "8080"
+  - name: calculator-db-security-group
+    type: aws.vpc.SecurityGroupSpec
+    securityGroupName: calculator-db-security-group
+    description: Grupo de seguridad para la base de datos de la aplicacion Calculadora
+    region: us-east-1
+    inboundRules:
+    - name: mysql
+      type: aws.vpc.SecurityGroupInboundRuleSpec
+      protocol: TCP
+      portRange: "3306"
+      source: 0.0.0.0/0
+  - name: tomcat-instance-1
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.7/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.7/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.7/tomcat-instance-1/java8/install_java.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.7/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.7/tomcat-instance-1/tomcat/tomcat.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.7/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.7/tomcat-instance-1/service-tomcat/service_tomcat.sh"
+    instanceName: tomcat-instance-1
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: tomcat-instance-2
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.7/tomcat-host-{{%instanceId%}}
+    provisioners:
+    - name: java8
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.7/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.7/tomcat-instance-2/java8/install_java.sh"
+    - name: tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.7/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.7/tomcat-instance-2/tomcat/tomcat.sh"
+    - name: service-tomcat
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.7/tomcat-host-{{%instanceId%}}
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.7/tomcat-instance-2/service-tomcat/service_tomcat.sh"
+    instanceName: tomcat-instance-2
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: sql-client-instance
+    type: aws.ec2.InstanceSpec
+    boundTemplates:
+    - Applications/AWS-Resources-Calculator/1.0.7/sql-client-host
+    provisioners:
+    - name: mysql-client
+      type: script.provisioner.Script
+      hostTemplate: Applications/AWS-Resources-Calculator/1.0.7/sql-client-host
+      file: !file "artifacts/Applications/AWS-Resources-Calculator/1.0.7/sql-client-instance/mysql-client/mysql.sh"
+    instanceName: sql-client-instance
+    amiId: ami-0a313d6098716f372
+    region: us-east-1
+    availabilityZone: us-east-1a
+    securityGroup:
+    - Name:calculator-security-group
+    instanceType: t2.small
+    keyName: jcla
+    instanceTags:
+      app: calculator
+  - name: calculator-db
+    type: aws.rds.DBInstanceSpec
+    engine: mysql
+    dbInstanceClass: db.t2.small
+    allocatedStorage: "5"
+    region: us-east-1
+    dbInstanceIdentifier: calculator-db
+    masterUsername: root
+    dbName: congruencias
+    dbSubnetGroupName: default
+    publiclyAccessible: "false"
+    availabilityZone: us-east-1a
+    vpcSecurityGroupIds:
+    - Name:calculator-db-security-group
+    backupRetentionPeriod: "1"
+    monitoringInterval: "0"
+    rdsTags:
+      app: calculator
+  templates:
+  - name: sql-client-host
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: calculator mysql client
+      type: template.sql.MySqlClient
+      username: cng_user
+      additionalOptions: -h Name:calculator-db
+      mySqlHome: /usr
+      databaseName: congruencias
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root
+  - name: tomcat-host-{{%instanceId%}}
+    type: template.overthere.SshHost
+    childTemplates:
+    - name: smoker
+      type: template.smoketest.Runner
+    - name: tomcat-server
+      type: template.tomcat.Server
+      childTemplates:
+      - name: tomcat-vh
+        type: template.tomcat.VirtualHost
+      home: /opt/tomcat
+      startCommand: sudo systemctl start tomcat
+      stopCommand: sudo systemctl stop tomcat
+      startWaitTime: "10"
+      stopWaitTime: "10"
+    os: UNIX
+    connectionType: SUDO
+    address: '{{%publicHostname%}}'
+    username: ubuntu
+    privateKeyFile: /home/jcla/.ssh/jcla.cer
+    sudoUsername: root

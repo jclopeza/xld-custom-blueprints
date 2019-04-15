@@ -1,0 +1,66 @@
+---
+apiVersion: xl-deploy/v1
+kind: Environments
+spec:
+- name: Environments/Development
+  type: core.Directory
+- name: Environments/Preproduction
+  type: core.Directory
+- name: Environments/Production
+  type: core.Directory
+- name: Environments/Dictionaries
+  type: core.Directory
+- name: Environments/Dictionaries/calculator-dev
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/calculator-pre
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/calculator-pro
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Development/calculator-dev
+  type: udm.Environment
+  members:
+  - Infrastructure/Calculator/host-dev/axis2
+  - Infrastructure/Calculator/host-dev/mysql-cli
+  - Infrastructure/Calculator/host-dev/smokeTest
+  - Infrastructure/Calculator/host-dev/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/calculator-dev
+- name: Environments/Preproduction/calculator-pre
+  type: udm.Environment
+  members:
+  - Infrastructure/Calculator/host-pre/axis2
+  - Infrastructure/Calculator/host-pre/mysql-cli
+  - Infrastructure/Calculator/host-pre/smokeTest
+  - Infrastructure/Calculator/host-pre/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/calculator-pre
+- name: Environments/Production/calculator-pro
+  type: udm.Environment
+  members:
+  - Infrastructure/Calculator/host-pro/axis2
+  - Infrastructure/Calculator/host-pro/mysql-cli
+  - Infrastructure/Calculator/host-pro/smokeTest
+  - Infrastructure/Calculator/host-pro/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/calculator-pro

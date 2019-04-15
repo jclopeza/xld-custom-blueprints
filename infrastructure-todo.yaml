@@ -1,0 +1,525 @@
+---
+apiVersion: xl-deploy/v1
+kind: Infrastructure
+spec:
+- directory: Infrastructure/Calculator
+  children:
+  - name: host-pro
+    type: overthere.SshHost
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2224
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: axis2
+      type: axis2.Deployer
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+    - name: smokeTest
+      type: smoketest.Runner
+    - name: mysql-cli
+      type: sql.MySqlClient
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+    - name: tomcat
+      type: tomcat.Server
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+  - name: host-pre
+    type: overthere.SshHost
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2223
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: axis2
+      type: axis2.Deployer
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+    - name: tomcat
+      type: tomcat.Server
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+    - name: smokeTest
+      type: smoketest.Runner
+    - name: mysql-cli
+      type: sql.MySqlClient
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+  - name: host-dev
+    type: overthere.SshHost
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2222
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: mysql-cli
+      type: sql.MySqlClient
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+    - name: smokeTest
+      type: smoketest.Runner
+    - name: tomcat
+      type: tomcat.Server
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+    - name: axis2
+      type: axis2.Deployer
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+- directory: Infrastructure/Hotelbeds
+  children:
+  - name: host-pro-1
+    type: overthere.SshHost
+    deploymentGroup: 1
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2224
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: mysql-cli
+      type: sql.MySqlClient
+      deploymentGroup: 1
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+    - name: axis2
+      type: axis2.Deployer
+      deploymentGroup: 1
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+    - name: tomcat
+      type: tomcat.Server
+      deploymentGroup: 1
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+        deploymentGroup: 1
+    - name: smokeTest
+      type: smoketest.Runner
+      deploymentGroup: 1
+  - name: host-pro-4
+    type: overthere.SshHost
+    deploymentGroup: 4
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2224
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: tomcat
+      type: tomcat.Server
+      deploymentGroup: 4
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+        deploymentGroup: 4
+    - name: smokeTest
+      type: smoketest.Runner
+      deploymentGroup: 4
+    - name: mysql-cli
+      type: sql.MySqlClient
+      deploymentGroup: 4
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+    - name: axis2
+      type: axis2.Deployer
+      deploymentGroup: 4
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+  - name: host-dev
+    type: overthere.SshHost
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2222
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: axis2
+      type: axis2.Deployer
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+    - name: mysql-cli
+      type: sql.MySqlClient
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+    - name: smokeTest
+      type: smoketest.Runner
+    - name: tomcat
+      type: tomcat.Server
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+  - name: host-pro-2
+    type: overthere.SshHost
+    deploymentGroup: 2
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2224
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: axis2
+      type: axis2.Deployer
+      deploymentGroup: 2
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+    - name: tomcat
+      type: tomcat.Server
+      deploymentGroup: 2
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+        deploymentGroup: 2
+    - name: mysql-cli
+      type: sql.MySqlClient
+      deploymentGroup: 2
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+    - name: smokeTest
+      type: smoketest.Runner
+      deploymentGroup: 2
+  - name: host-pre
+    type: overthere.SshHost
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2223
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: axis2
+      type: axis2.Deployer
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+    - name: mysql-cli
+      type: sql.MySqlClient
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+    - name: smokeTest
+      type: smoketest.Runner
+    - name: tomcat
+      type: tomcat.Server
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+  - name: host-pro-3
+    type: overthere.SshHost
+    deploymentGroup: 3
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2224
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: axis2
+      type: axis2.Deployer
+      deploymentGroup: 3
+      axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+    - name: tomcat
+      type: tomcat.Server
+      deploymentGroup: 3
+      home: /opt/apache-tomcat-8.5.8
+      startCommand: sudo service tomcat start
+      stopCommand: sudo service tomcat stop
+      statusCommand: sudo service tomcat status
+      children:
+      - name: virtual-host-congruencias
+        type: tomcat.VirtualHost
+        deploymentGroup: 3
+    - name: smokeTest
+      type: smoketest.Runner
+      deploymentGroup: 3
+    - name: mysql-cli
+      type: sql.MySqlClient
+      deploymentGroup: 3
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+- directory: Infrastructure/TrainingCourse
+  children:
+  - name: host-dev
+    type: overthere.SshHost
+    os: UNIX
+    connectionType: SCP
+    address: localhost
+    port: 2222
+    username: tomcat
+    privateKeyFile: /home/jcla/.ssh/id_rsa
+    children:
+    - name: mysql-cli
+      type: sql.MySqlClient
+      username: cng_user
+      mySqlHome: /usr
+      databaseName: congruencias
+    - name: smokeTest
+      type: smoketest.Runner
+- name: Infrastructure/aws
+  type: aws.Cloud
+  accesskey: AKIAJ6JWDQIEX37CLFTQ
+- directory: Infrastructure/docker-app
+  children:
+  - name: Local Docker Daemon
+    type: docker.Engine
+    dockerHost: http://192.168.99.100:2376
+    enableTLS: true
+    certPem: |-
+      -----BEGIN CERTIFICATE-----
+      MIIC6jCCAdKgAwIBAgIRAOpUFKWN7gTwCXI+znyla+swDQYJKoZIhvcNAQELBQAw
+      DzENMAsGA1UEChMEamNsYTAeFw0xODEyMDcwNzQ4MDBaFw0yMTExMjEwNzQ4MDBa
+      MBsxGTAXBgNVBAoMEGpjbGEuPGJvb3RzdHJhcD4wggEiMA0GCSqGSIb3DQEBAQUA
+      A4IBDwAwggEKAoIBAQC06Np8jJIDjMzU64n7hxjuxduupF+cygpof7Q9lgl+vJ9v
+      o4zUQBJ411T3u3irtpdheJtWzyKFjUaIaClb887CKOQ+HVaMX7LxWaRGRtBR3x12
+      heCJtJMpP8Zi0xcSpkTGsgT9sXgSAvBd7LmyZmHOccgbhiS+Mz/CUAgbEBVwW4K0
+      0zRxsa64xfJaFbAZ1Jb7ChplYC2rR8S0P5plbF6zzx1rNprnYd+m2W/hiFndqQce
+      eNcfKHXpWs48puO+jvpRK1TeCHQeqYBonFXh1zImlGwmsF8HoXRsUTGn4aMVv+YD
+      DdzHQhTz0BjN+LJL5nGqwwyyxgkk0pI4rqguyqWjAgMBAAGjNTAzMA4GA1UdDwEB
+      /wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMA0GCSqG
+      SIb3DQEBCwUAA4IBAQBCU54NYVhwMuWzVvSTWqm+QLfFgao4BhaOrHIHojVr2Q5S
+      lZNd1BFL+MPNv2yBjvuksKF+hWNGMaiybGzXpcKjHOhwT32CbY0nnc/JE6VH8tOP
+      j3kbATtZ8CVyfSYlODohbGBQ8JdPdfEcxmLGYQxfCbCYWznx1o4IJHmxIC7b1kJy
+      UqpBttfOL8Mcvik/sKzRdOGPAabp7A75EYfpHTlbYMlyA9qSG3r+/UHkFKPnGYDk
+      iLZNgnkVG5JdKnCOgcSg4sJ9hUMJ8Kv7LtGQp35zX0yjlZsHZmpz7DtOBi3xABI2
+      A1Z51hgWqiQ2OcpMBB1Y6x0znhHvUkr3FkcGbpZ8
+      -----END CERTIFICATE-----
+    caPem: |-
+      -----BEGIN CERTIFICATE-----
+      MIICzDCCAbSgAwIBAgIRANvwHydkj9kQdyeF9awcIzEwDQYJKoZIhvcNAQELBQAw
+      DzENMAsGA1UEChMEamNsYTAeFw0xODEyMDcwNzQ4MDBaFw0yMTExMjEwNzQ4MDBa
+      MA8xDTALBgNVBAoTBGpjbGEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+      AQC0arAJMym8Oc9JZtBNfgUi2kehV4S+z453CzOLOULewGLkUIBzOO2kxgqisdvj
+      kVSCN/qnMLHDla4gjs4pYEI4G2hxE9gJuseNSqU2OEczwPv3AGRnUlD74aH/N5mq
+      ylTk/KPSvgxGvHlAGQSxD6rFhfvApwKxk3V9G5NAuMe8ay1CciwgWYuwsUkFXOnX
+      MO+8TG3icNhZofyW7ymGmaUIIlIKr7/bXH+2+Bb/RDXfOzlc3cyDIWcW5NhQR71b
+      bqwZc1hfvULaQd9doBXMavG8MHr4rxZowrERD0caACeyagrkRHzgRQt3FOwVJNLX
+      bTcpsNwmBAzu+i6W+lf6YvRZAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwICrDAPBgNV
+      HRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBeqQdz5BjY3LJq8+16l+fR
+      lrt0ENBrUpHbf4uIPYF6WLDOvoWMPpP/kA2+kqmt2bnZDtUI1wa0cBruyGFvmBA9
+      acOlUuEdFWT9p+r/VUFBtDFgbCcN6nlqLud2piz4vd+6F1EFtoaVqGGBuDpidXoJ
+      suEU12MMJCNswqmf2RpTsN17SZ3S54K582j8R57ZOBCf+03tfsi2PqdjjY+iqnQC
+      teQO0cLzub/vIV+lZBtTI4Iny0dLpWLo/ARML+2RW5PX6xQjGtKiztVEWR6uH34h
+      LFOSFH4axo1AduaDHVKozpDFcwH+UTFH/bqYb+xkd00hhgBRPiBn8ihavJvqNb3e
+      -----END CERTIFICATE-----
+- name: Infrastructure/gcp-k8s
+  type: k8s.Master
+  apiServerURL: https://34.76.149.247
+  caCert: |-
+    -----BEGIN CERTIFICATE-----
+    MIIDDDCCAfSgAwIBAgIRAMWzT6uW3oYtuPAlRqhPcVowDQYJKoZIhvcNAQELBQAw
+    LzEtMCsGA1UEAxMkNDExMzZkZmUtZWZmMy00MTlmLTg5YjQtNmU2NWY5ZjBmOGMw
+    MB4XDTE5MDMxODA2NTAzMFoXDTI0MDMxNjA3NTAzMFowLzEtMCsGA1UEAxMkNDEx
+    MzZkZmUtZWZmMy00MTlmLTg5YjQtNmU2NWY5ZjBmOGMwMIIBIjANBgkqhkiG9w0B
+    AQEFAAOCAQ8AMIIBCgKCAQEAwlc1G7XQcsXle3C1YrgYqhi2rPCy+FNU8O56h35k
+    0vJVfnJljikX1ew1dtHddf2Pl5Zi4kNp9m6Q5zF/L4u8kq4956gHhv7zwdUiOS88
+    B/Y+5/3JbEyy7ycniJ/9pZJYs9SLvOpsN7BRDHpdvAkbU1C175cF4NOfAbQtQqsS
+    Ld/mqKPwv3udunBHR7qUXV/Pm1V9MTk0Qd3wGyi1AoAdJIf2kdHhfx5YoHG+HO5H
+    ZxyIjYMPv2y9fqjPsdPdoFKbCDneH80HDmnxN17h2+Nr/LUVdAZy9Z+bL+qjOwUX
+    GB5jZBawn1oknSv3Q6JRiE0RhM2MpdlTKRFkOu/+cKQ8CwIDAQABoyMwITAOBgNV
+    HQ8BAf8EBAMCAgQwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEA
+    oBr1L3WrfHFNlLo7uBcgcPkcgAmBfF0OL+zEvUMji8flnjT/VHrxnBFCTo2+2BUB
+    BBj7a6v4o3x29Chtn3sXfYRsEnhcHnPHp4h84MZGav6rgy0lWzBECqIU4d6zYy6Y
+    V3hS+VnyaVDX0owGTAWnE7qJRGHWVKMgYUX+OivReIwD+yXgPCM1QInli4B2+BlB
+    +jXOgryadURWH3qc7Qmz+y0IoIFgzZahEo/GlJlWAE/1E1OSgr3OWJfzdby5swuB
+    QfEcIPUs4yUOb0ahp4T/OklbI0J12QLSdznysjRIxcB697KL8e+SXRsWHUJnOaI9
+    D/qopFXq1miCRaJgMPudOg==
+    -----END CERTIFICATE-----
+  username: admin
+  children:
+  - name: tutorial
+    type: k8s.Namespace
+    namespaceName: lyhsoft-234809
+- name: Infrastructure/k8s
+  type: k8s.Master
+  apiServerURL: https://192.168.99.100:8443
+  caCert: |-
+    -----BEGIN CERTIFICATE-----
+    MIIC5zCCAc+gAwIBAgIBATANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwptaW5p
+    a3ViZUNBMB4XDTE4MTExOTEwNTEyNVoXDTI4MTExNzEwNTEyNVowFTETMBEGA1UE
+    AxMKbWluaWt1YmVDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANXV
+    OxiEJDSF8USHIRaB4xxOnZbT9s8x6Tb+jE1PvQ6PNr/VbtpUgzsqzpb3h29wZoVT
+    x52wbPkWj06da9v4VX1jqNxbKOS6iipHo7zV2eeczai8NqejwAOuRpSJz57axpiK
+    2LGvL9xW+KMj7THY/r4yT4S768Sbt4l2yAKJJ+BWYHDfcbzE1B3pU9OgVGqlfuBf
+    eqWkfH4rpxdgJ+G5ipj5TeFsXQLA+rqg6lK/0+K8v3MPMXnovHwolj1RxL2QcRQt
+    RSK5M5Pove45Dt8yqnNF7Dc9IStInKwdTylocW9x55fuh+mbXB9HyRJVlqi0f6nD
+    JaCO/fCAfzlqRp1kX+8CAwEAAaNCMEAwDgYDVR0PAQH/BAQDAgKkMB0GA1UdJQQW
+    MBQGCCsGAQUFBwMCBggrBgEFBQcDATAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3
+    DQEBCwUAA4IBAQCCpiIvK43jl1/FAFlnyDG7oyNdMtlaot1Y9TWrREtqeH9WgAw+
+    1wJ8mcDCsFFVb4YXY8w9XdFRPbwPPoduqwT8wA9mVVvVhCkq/nlQ3sgjPpVSW27n
+    mKCHUiOF2ztHDlnsVSUEKYthN4XgeYs93Qi2B7Ecl+QWBeVJcSGVosJ/akqqP6Sm
+    ZAxZgcGOADFOF4zZ7p8MgRnjAKqQaz9HR7gUb9RVgYz32s5eRReSPGRA3LqnH6h0
+    MRVoLnqRoFBGnbfiJPuhoG23WMk10YmiMKpnlMa911jl5/UXClxaw/cU/h8ko7rX
+    hhoU2EqimkWTKBu+zp6ATHpaT6adanwC5c8g
+    -----END CERTIFICATE-----
+  tlsCert: |-
+    -----BEGIN CERTIFICATE-----
+    MIIDkjCCAnqgAwIBAgIBAjANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwptaW5p
+    a3ViZUNBMB4XDTE5MDEwMjE2NDQ0MloXDTIwMDEwMzE2NDQ0MlowLDEXMBUGA1UE
+    ChMOc3lzdGVtOm1hc3RlcnMxETAPBgNVBAMTCG1pbmlrdWJlMIIBIjANBgkqhkiG
+    9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvVWfq43b4DzCDFLD1X71awcX7DF6ji9v3oRU
+    nDOhnTPg10v0wEfaHcFlsjRdVC5xfgadSqt9k3fs0L6Nia3G8Gms0mEtznUYX6C7
+    TzMTULGF/aqCCJbnFV7IzY8L0e88Kbh4TcvXfdzFhpLe6yALIm9Kc5R79Ytq9tiS
+    T0C2tCyAdee2tl59EPPUx0C9F52AqAI9eDe+nUS/xT5EbfDjI1LZcWGoK+Fu+7dE
+    s3T4ZmBmj6kU2dXybubzy86UuMfpQgTsqA7rpDokw0WcmCI/H5PvKz7S9dMWElYY
+    0bgS0jHqlrBBBkxDDIkG1fhaiQQesP28Wn5Xdp3Kczy49qeiQQIDAQABo4HVMIHS
+    MA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIw
+    DAYDVR0TAQH/BAIwADCBkgYDVR0RBIGKMIGHggptaW5pa3ViZUNBgiRrdWJlcm5l
+    dGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWyCFmt1YmVybmV0ZXMuZGVmYXVs
+    dC5zdmOCEmt1YmVybmV0ZXMuZGVmYXVsdIIKa3ViZXJuZXRlc4IJbG9jYWxob3N0
+    hwTAqGNkhwQKYAABhwQKAAABMA0GCSqGSIb3DQEBCwUAA4IBAQCG+nuVKa3qaCmE
+    abRNTvgvnMad8CJCqruzV1FMv9tmEo9fIZb5B7S06U8LdeJm34oHyKg8KTPgj6G9
+    DYV563RHi7IN0Ky1T/KVPzh1eNEWIz0aYzojfbZdohRyF8AzKjVMxG36fiByacXx
+    m241U2BfuhngqzQrJM3DvMkOec7WoMMtsvFXm/eVRud2F04+3YG01Mtt8NwSKOka
+    4PgBDdtfjwkomB7mURbt94XBqUC5i5BmTuJ+lIPGFuVWsPaazJuAyC6NX8z5ylFN
+    T9PHX+axrA6UBIXqhr5DRsq6O3pFMgJnxH776TNIruz/sARk+YqUkqOfTyMJ96zB
+    jRZjQa1q
+    -----END CERTIFICATE-----
+  tlsPrivateKey: |-
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEpAIBAAKCAQEAvVWfq43b4DzCDFLD1X71awcX7DF6ji9v3oRUnDOhnTPg10v0
+    wEfaHcFlsjRdVC5xfgadSqt9k3fs0L6Nia3G8Gms0mEtznUYX6C7TzMTULGF/aqC
+    CJbnFV7IzY8L0e88Kbh4TcvXfdzFhpLe6yALIm9Kc5R79Ytq9tiST0C2tCyAdee2
+    tl59EPPUx0C9F52AqAI9eDe+nUS/xT5EbfDjI1LZcWGoK+Fu+7dEs3T4ZmBmj6kU
+    2dXybubzy86UuMfpQgTsqA7rpDokw0WcmCI/H5PvKz7S9dMWElYY0bgS0jHqlrBB
+    BkxDDIkG1fhaiQQesP28Wn5Xdp3Kczy49qeiQQIDAQABAoIBAC56Tm/2qvso7xnH
+    V3uZZvWXEDBTFRrCWlvtcDfIFOxaR9+SLcrl2I1lZGmSoTaBECs3xHUIFBOXZPL5
+    VBVwK13pExux72S3KfyPoGuYxi0Q5yuWJ8WkBaYhVnnfm681Yzd6qU2vtH6ZK4QV
+    mdNuUk1ptIUa9jMYvnFKSOBbqn4f4ktB/Gsu2EQHrquSlbvHOzFvb+s5BAfMnlY0
+    wvbszkZKPVYEjprjhxBtKaP8Se5ue5lWWR9qusFLyhQjayIqRhdYP48svKaO9/9C
+    dH+q5az0+CyhYqAeyLGMwyWlvZHp08rB+D3d4jGS0R/mopY7/MkVymZasZ1qKucK
+    NK39LWECgYEA6Bv5BeGJplwBNoPJJFIlopU67bvj1jFdwPBhU2d/hPhwsxunHbNh
+    oZcaMKt4hY2vQ+hqTC2QSL1bJCelMt/CkqAZpktTQSDthc8A2GTRZdA8sxdsiB1U
+    T+Y7KWSH7GQzpB+szbWOODuRwo/s4wQdiNOSi3XfhyMk+rb5X4+FFtcCgYEA0NKL
+    ZupLC54pcQUylFeHiq5spwViDND31CQfHmmc8u6I+25EddtglTDc0pSvdyGgzwUp
+    W71ldAlHZbqbMyrJ4qL2v9DDHaq0ZK3VMSKmLppn1E12pffqdPMdiKg9uFIfyqgP
+    Pdog9AnKCEWqre0OABRfCsOyKfGEpTKyrWrspKcCgYAlmgqAmmYLTlJf+3+FY813
+    BkfypYKme37dt9N8iILPDtRrH6q2FA5X+Duk8NJoiGiBTtCRoLwEHLD8LXQExt0l
+    lcwx9Xf6UBRKnhtb8xE9NjvvI3dQobe77eddsEyYzi7TgtIizSvKDlRxuZE9wbfr
+    J6NQ9nqM0PO3rha+FWkRJwKBgQCdUzKha7z0WMmCE9dieXttmTHUt7KCU2GTm08y
+    m4EaaWoce5vqa0gdvn1vzYNQrq43qfzZ2Bw6Ss9WrjtFVmRZckuSghauIDDedTTc
+    Wu12yO+WvHG6YshqKcvDbHVri7vV873f7JnNIh7rEomflaxplO9x7bQp84Lq7wI8
+    swTsmwKBgQCgv+tqVD/5O2nmmvW5QmKD+FX1VdedR71r9DlZgANTkW93M9eEvlRj
+    Qwr1uoISvgHQbBYG6rI2I9gRFgTCZS/aiv0WoWTDiCR39PWw1Dk8vn9b28JskQhK
+    RWyVT9Wj0usscpbTAJpFFHWmsZeQruiumry4KltL8YhRPwJzik8aUw==
+    -----END RSA PRIVATE KEY-----
+  username: admin
+  children:
+  - name: tutorial-pre
+    type: k8s.Namespace
+    deployable: Applications/Provisioning packages/tutorial-minikube/tutorial-pre
+  - name: tutorial-dev
+    type: k8s.Namespace
+    deployable: Applications/Provisioning packages/tutorial-minikube/tutorial-dev
+  - name: tutorial-pro
+    type: k8s.Namespace
+    deployable: Applications/Provisioning packages/tutorial-minikube/tutorial-pro
+- name: Infrastructure/localhost
+  type: overthere.LocalHost
+  os: UNIX
+  children:
+  - name: terraform
+    type: terraform.TerraformClient
+  - name: training-container
+    type: training.Container
+    workingDirectory: /home/jcla/Documentos/borrar/training
+  - name: mycluster-dev
+    type: mycompany.k8s.cluster
+    configFilePath: /etc/mycompany/dev.properties
+    children:
+    - name: app2
+      type: mycompany.k8s.Namespace
+      namespaceName: app2
+    - name: app1
+      type: mycompany.k8s.Namespace
+      namespaceName: app1
+- name: Infrastructure/openshift
+  type: openshift.Server
+  serverUrl: https://192.168.42.185:8443
+  verifyCertificates: false
+  children:
+  - name: tutorial-dev
+    type: openshift.Project
+    deployable: Applications/Provisioning packages/tutorial-openshift/tutorial-dev
+    projectName: tutorial-dev
+    description: tutorial-dev
+    projectDisplayName: tutorial-dev
+  - name: tutorial-pro
+    type: openshift.Project
+    deployable: Applications/Provisioning packages/tutorial-openshift/tutorial-pro
+    projectName: tutorial-pro
+    description: tutorial-pro
+    projectDisplayName: tutorial-pro
+  - name: tutorial-pre
+    type: openshift.Project
+    deployable: Applications/Provisioning packages/tutorial-openshift/tutorial-pre
+    projectName: tutorial-pre
+    description: tutorial-pre
+    projectDisplayName: tutorial-pre
+- name: Infrastructure/satellite
+  type: xl.Satellite
+  address: ubuntu-xenial
+  protocolPort: 8380
+  encrypted: true
+- directory: Infrastructure/training
+  children:
+  - name: aws-training
+    type: aws.Cloud
+    accesskey: AKIAJ6JWDQIEX37CLFTQ
+    children:
+    - name: eks-cloudformation
+      type: aws.cloudformation.Stack
+      region: us-east-2
+- name: Infrastructure/wild-fly-host
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2226
+  username: vagrant
+  privateKeyFile: /home/jcla/Projects/vms/wild-fly/.vagrant/machines/default/virtualbox/private_key
+  suUsername: admin

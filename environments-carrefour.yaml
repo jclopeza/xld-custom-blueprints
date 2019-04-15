@@ -1,0 +1,76 @@
+---
+apiVersion: xl-deploy/v1
+kind: Environments
+spec:
+- name: Environments/Dictionaries
+  type: core.Directory
+- name: Environments/Carrefour
+  type: core.Directory
+- name: Environments/Dictionaries/Carrefour
+  type: core.Directory
+- name: Environments/Dictionaries/Carrefour/carrefour-dev
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/Carrefour/carrefour-pre
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Dictionaries/Carrefour/carrefour-pro
+  type: udm.Dictionary
+  entries:
+    bdd.url: jdbc:mysql://localhost:3306/congruencias
+    bdd.user: cng_user
+    smoke.test.url: http://localhost:8080/congruencias/index
+    url.webservices: http://localhost:8080/axis2/services/webservices.webservicesHttpEndpoint/
+  encryptedEntries:
+    bdd.pass: cng_password
+- name: Environments/Carrefour/carrefour-dev
+  type: udm.Environment
+  members:
+  - Infrastructure/Carrefour/host-dev/axis2
+  - Infrastructure/Carrefour/host-dev/mysql-cli
+  - Infrastructure/Carrefour/host-dev/smokeTest
+  - Infrastructure/Carrefour/host-dev/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Carrefour/carrefour-dev
+- name: Environments/Carrefour/carrefour-pre
+  type: udm.Environment
+  members:
+  - Infrastructure/Carrefour/host-pre/axis2
+  - Infrastructure/Carrefour/host-pre/mysql-cli
+  - Infrastructure/Carrefour/host-pre/smokeTest
+  - Infrastructure/Carrefour/host-pre/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Carrefour/carrefour-pre
+- name: Environments/Carrefour/carrefour-pro
+  type: udm.Environment
+  members:
+  - Infrastructure/Carrefour/host-pro-1/axis2
+  - Infrastructure/Carrefour/host-pro-1/mysql-cli
+  - Infrastructure/Carrefour/host-pro-1/smokeTest
+  - Infrastructure/Carrefour/host-pro-1/tomcat/virtual-host-congruencias
+  - Infrastructure/Carrefour/host-pro-2/axis2
+  - Infrastructure/Carrefour/host-pro-2/mysql-cli
+  - Infrastructure/Carrefour/host-pro-2/smokeTest
+  - Infrastructure/Carrefour/host-pro-2/tomcat/virtual-host-congruencias
+  - Infrastructure/Carrefour/host-pro-3/axis2
+  - Infrastructure/Carrefour/host-pro-3/mysql-cli
+  - Infrastructure/Carrefour/host-pro-3/smokeTest
+  - Infrastructure/Carrefour/host-pro-3/tomcat/virtual-host-congruencias
+  - Infrastructure/Carrefour/host-pro-4/axis2
+  - Infrastructure/Carrefour/host-pro-4/mysql-cli
+  - Infrastructure/Carrefour/host-pro-4/smokeTest
+  - Infrastructure/Carrefour/host-pro-4/tomcat/virtual-host-congruencias
+  dictionaries:
+  - Environments/Dictionaries/Carrefour/carrefour-pro

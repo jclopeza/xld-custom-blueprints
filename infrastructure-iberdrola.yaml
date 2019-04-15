@@ -1,0 +1,240 @@
+---
+apiVersion: xl-deploy/v1
+kind: Infrastructure
+spec:
+- name: Infrastructure/Iberdrola
+  type: core.Directory
+
+- name: Infrastructure/Iberdrola/host-dev
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2222
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+
+- name: Infrastructure/Iberdrola/host-dev/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+
+- name: Infrastructure/Iberdrola/host-dev/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+
+- name: Infrastructure/Iberdrola/host-dev/smokeTest
+  type: smoketest.Runner
+
+- name: Infrastructure/Iberdrola/host-dev/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+
+- name: Infrastructure/Iberdrola/host-dev/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
+
+- name: Infrastructure/Iberdrola/host-pre
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2223
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+
+- name: Infrastructure/Iberdrola/host-pre/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+
+- name: Infrastructure/Iberdrola/host-pre/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+
+- name: Infrastructure/Iberdrola/host-pre/smokeTest
+  type: smoketest.Runner
+
+- name: Infrastructure/Iberdrola/host-pre/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+
+- name: Infrastructure/Iberdrola/host-pre/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
+
+- name: Infrastructure/Iberdrola/host-pro-1
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2224
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+  deploymentGroup: 1
+
+- name: Infrastructure/Iberdrola/host-pro-1/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+  deploymentGroup: 1
+
+- name: Infrastructure/Iberdrola/host-pro-1/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+  deploymentGroup: 1
+
+- name: Infrastructure/Iberdrola/host-pro-1/smokeTest
+  type: smoketest.Runner
+  deploymentGroup: 1
+
+- name: Infrastructure/Iberdrola/host-pro-1/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+  deploymentGroup: 1
+
+- name: Infrastructure/Iberdrola/host-pro-1/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
+  deploymentGroup: 1
+
+- name: Infrastructure/Iberdrola/host-pro-2
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2224
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+  deploymentGroup: 2
+
+- name: Infrastructure/Iberdrola/host-pro-2/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+  deploymentGroup: 2
+
+- name: Infrastructure/Iberdrola/host-pro-2/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+  deploymentGroup: 2
+
+- name: Infrastructure/Iberdrola/host-pro-2/smokeTest
+  type: smoketest.Runner
+  deploymentGroup: 2
+
+- name: Infrastructure/Iberdrola/host-pro-2/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+  deploymentGroup: 2
+
+- name: Infrastructure/Iberdrola/host-pro-2/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
+  deploymentGroup: 2
+
+- name: Infrastructure/Iberdrola/host-pro-3
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2224
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+  deploymentGroup: 3
+
+- name: Infrastructure/Iberdrola/host-pro-3/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+  deploymentGroup: 3
+
+- name: Infrastructure/Iberdrola/host-pro-3/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+  deploymentGroup: 3
+
+- name: Infrastructure/Iberdrola/host-pro-3/smokeTest
+  type: smoketest.Runner
+  deploymentGroup: 3
+
+- name: Infrastructure/Iberdrola/host-pro-3/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+  deploymentGroup: 3
+
+- name: Infrastructure/Iberdrola/host-pro-3/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
+  deploymentGroup: 3
+
+- name: Infrastructure/Iberdrola/host-pro-4
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2224
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+  deploymentGroup: 4
+
+- name: Infrastructure/Iberdrola/host-pro-4/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+  deploymentGroup: 4
+
+- name: Infrastructure/Iberdrola/host-pro-4/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+  deploymentGroup: 4
+
+- name: Infrastructure/Iberdrola/host-pro-4/smokeTest
+  type: smoketest.Runner
+  deploymentGroup: 4
+
+- name: Infrastructure/Iberdrola/host-pro-4/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+  deploymentGroup: 4
+
+- name: Infrastructure/Iberdrola/host-pro-4/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
+  deploymentGroup: 4

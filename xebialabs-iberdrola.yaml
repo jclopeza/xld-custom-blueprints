@@ -1,0 +1,7 @@
+---
+apiVersion: xl/v1
+kind: Import
+metadata:
+ imports:
+   - infrastructure-iberdrola.yaml
+   - environments-iberdrola.yaml

@@ -1,0 +1,111 @@
+---
+apiVersion: xl-deploy/v1
+kind: Infrastructure
+spec:
+- name: Infrastructure/Calculator
+  type: core.Directory
+
+- name: Infrastructure/Calculator/host-dev
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2222
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+
+- name: Infrastructure/Calculator/host-dev/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+
+- name: Infrastructure/Calculator/host-dev/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+
+- name: Infrastructure/Calculator/host-dev/smokeTest
+  type: smoketest.Runner
+
+- name: Infrastructure/Calculator/host-dev/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+
+- name: Infrastructure/Calculator/host-dev/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
+
+- name: Infrastructure/Calculator/host-pre
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2223
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+
+- name: Infrastructure/Calculator/host-pre/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+
+- name: Infrastructure/Calculator/host-pre/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+
+- name: Infrastructure/Calculator/host-pre/smokeTest
+  type: smoketest.Runner
+
+- name: Infrastructure/Calculator/host-pre/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+
+- name: Infrastructure/Calculator/host-pre/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
+
+- name: Infrastructure/Calculator/host-pro
+  type: overthere.SshHost
+  os: UNIX
+  connectionType: SCP
+  address: localhost
+  port: 2224
+  username: tomcat
+  privateKeyFile: /home/jcla/.ssh/id_rsa
+
+- name: Infrastructure/Calculator/host-pro/axis2
+  type: axis2.Deployer
+  axis2ServicesDirectory: /opt/apache-tomcat-8.5.8/webapps/axis2/WEB-INF/services
+
+- name: Infrastructure/Calculator/host-pro/mysql-cli
+  type: sql.MySqlClient
+  username: cng_user
+  password: cng_password
+  mySqlHome: /usr
+  databaseName: congruencias
+
+- name: Infrastructure/Calculator/host-pro/smokeTest
+  type: smoketest.Runner
+
+- name: Infrastructure/Calculator/host-pro/tomcat
+  type: tomcat.Server
+  home: /opt/apache-tomcat-8.5.8
+  startCommand: sudo service tomcat start
+  stopCommand: sudo service tomcat stop
+  statusCommand: sudo service tomcat status
+
+- name: Infrastructure/Calculator/host-pro/tomcat/virtual-host-congruencias
+  type: tomcat.VirtualHost
+  appBase: webapps
+  hostName: localhost
